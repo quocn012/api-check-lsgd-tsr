@@ -1,4 +1,9 @@
 <?php
+/**
+ * @copyright 2021 châu chí quốc
+ * @version 2.0
+ */
+
 namespace TSR;
 header('Content-Type: application/json');
 use DOMDocument;
