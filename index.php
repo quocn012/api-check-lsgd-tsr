@@ -1,19 +1,9 @@
 <?php
-
-/**
- * @copyright 2021 châu chí quốc
- * @version 2.0
- */
-
 namespace TSR;
 header('Content-Type: application/json');
-require_once(__DIR__.DIRECTORY_SEPARATOR."/function.php");
-
-use Core\QUOCCMS;
 use DOMDocument;
-$quoc = new QUOCCMS;
-$username = $quoc->setting('username_tsr');
-$password = $quoc->setting('password_tsr');
+$username = "";
+$password = "";
 class thesieure
 {
     function __login__()
@@ -51,14 +41,13 @@ class thesieure
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         if ($dom->getElementsByTagName('title')->item(0)->textContent == "Thesieure.com - Hệ thống bán thẻ carot, thẻ game, thẻ cào điện thoại, nạp cước giá rẻ, đổi thẻ cào sang bangiftcode") {
-            return json_encode(array("status" => "success", "msg" => "Login Thành công"), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-        } else {
-            return json_encode(array("status" => "danger", "msg" => "login Thất Bại"), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            return json_encode(array("status" => "success", "msg" => "Login Thành công"),JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        }else {
+            return json_encode(array("status" => "danger", "msg" => "login Thất Bại"),JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         }
     }
     function CHECK_LSGD()
     {
-        global $quoc;
         $dom = new DOMDocument();
         $this->__login__();
         $ch = curl_init();
@@ -80,36 +69,29 @@ class thesieure
             if ($i != 0) {
                 $columns = $row->getElementsByTagName('td');
                 $magd = $columns->item(0)->textContent;
-                $sotien = trim(preg_replace('/[^0-9]/', '', $columns->item(1)->textContent));
-                $nguoigui = trim($columns->item(2)->textContent);
-                $ngaytao = trim($columns->item(3)->textContent);
-                $tinhtrang = trim($columns->item(4)->textContent);
-                $noidung = trim($columns->item(5)->textContent);
-                $loai = trim($columns->item(1)->getElementsByTagName("b")->item(0)->getElementsByTagName("span")->item(0)->getAttribute('class'));
+                $sotien = $columns->item(1)->textContent;
+                $user = $columns->item(2)->textContent;
+                $ngaytao = $columns->item(3)->textContent;
+                $tinhtrang = $columns->item(4)->textContent;
+                $noidung = $columns->item(5)->textContent;
+                $loai = $columns->item(1)->getElementsByTagName("b")->item(0)->getElementsByTagName("span")->item(0)->getAttribute('class');
                 if($loai == "text-success")
                 {
-                    $check = $quoc->number_sql("SELECT * FROM `history_thesieure` WHERE `magd` = '{$magd}'");
-                    if($check < 1)
-                    {
-                        $explode = explode('_',$noidung);
-                        if($explode[0] == 'NAPTIEN')
-                        {
-                            $quoc->congtien($sotien,$explode[1]);
-                            $quoc->insert('history_thesieure',[
-                                'magd' => $magd,
-                                'sotien' => $sotien,
-                                'nguoigui' => $nguoigui,
-                                'ngaytao' => $ngaytao,
-                                'status' => $tinhtrang,
-                                'noidung' => $noidung,
-                                'username' => $explode[1],
-                            ]);
-                        }
-                    }
+                    echo json_encode([
+                        'MA_GD' => trim($magd),
+                        'NGUOI_GUI_NHAN' => trim($user),
+                        'SO_TIEN' => trim(preg_replace('/[^0-9]/', '', $sotien)),
+                        'NGAY_TAO' => trim($ngaytao),
+                        'TINH_TRANG' => trim($tinhtrang),
+                        'NOI_DUNG' => trim($noidung),
+                        'LOAI' => trim($loai),
+                    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
                 }
             }
             $i += 1;
         }
     }
 }
+$quoc = new thesieure;
+echo $quoc->CHECK_LSGD();
 ?>
