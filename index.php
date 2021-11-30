@@ -40,7 +40,8 @@ class thesieure
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => "phoneOrEmail=$username&password=$password&_token=" . $_csrf_token,
-            CURLINFO_HEADER_OUT => true
+            CURLINFO_HEADER_OUT => true,
+            CURLOPT_CUSTOMREQUEST => "POST",
         ));
         $exec = curl_exec($curl);
         $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
